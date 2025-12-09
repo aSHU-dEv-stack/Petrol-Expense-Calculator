@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petrol Expense Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 30px;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            width: 350px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+            color: #555;
+        }
+
+        input {
+            width: 93%;
+            /* Adjusted to prevent overflow padding */
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #ffa500;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 15px;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #e69500;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            display: none;
+            /* Hidden until calculation */
+        }
+
+        /* 🌐 RESPONSIVE */
+        @media (max-width: 480px) {
+            .container {
+                width: 90%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Petrol Expense Calculator</h2>
+
+        <label for="distance">Total Distance (km)</label>
+        <input type="number" id="distance" placeholder="e.g. 50">
+
+        <label for="mileage">Vehicle Mileage (km/L)</label>
+        <input type="number" id="mileage" placeholder="e.g. 45">
+
+        <label for="fuelPrice">Fuel Price (₹/L)</label>
+        <input type="number" id="fuelPrice" placeholder="e.g. 102">
+
+        <button onclick="calculateExpense()">Calculate Cost</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function calculateExpense() {
+            // 1. Get values from inputs
+            const distance = parseFloat(document.getElementById("distance").value);
+            const mileage = parseFloat(document.getElementById("mileage").value);
+            const fuelPrice = parseFloat(document.getElementById("fuelPrice").value);
+
+            // 2. Validation: Check if inputs are valid numbers
+            if (isNaN(distance) || isNaN(mileage) || isNaN(fuelPrice) || mileage === 0) {
+                alert("Please enter valid numbers for all fields. Mileage cannot be zero.");
+                return;
+            }
+
+            // 3. Formula: (Distance / Mileage) * Fuel Price
+            const fuelNeeded = distance / mileage;
+            const totalCost = fuelNeeded * fuelPrice;
+
+            // 4. Display Result
+            const resultDiv = document.getElementById("result");
+            resultDiv.style.display = "block";
+            resultDiv.innerHTML = `
+                Fuel Needed: ${fuelNeeded.toFixed(2)} Liters<br>
+                <span style="color: #d9534f; font-size: 1.4em;">Total Cost: ₹${totalCost.toFixed(2)}</span>
+            `;
+        }
+    </script>
+
+</body>
+
+</html>
