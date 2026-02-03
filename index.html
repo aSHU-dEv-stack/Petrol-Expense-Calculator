@@ -4,27 +4,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Petrol Expense Calculator</title>
-    <link rel="icon" type="image/png" href="download.png">
+    <title>Petrol Calculator Pro</title>
+     <link rel="icon" type="image/png" href="download.png">
     <style>
         body {
             font-family: Arial, sans-serif;
             background: #f2f2f2;
-            padding: 30px;
+            padding: 20px;
         }
 
         .container {
             background: #fff;
             padding: 20px;
-            width: 350px;
+            width: 100%;
+            max-width: 380px;
             margin: auto;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         h2 {
             text-align: center;
             color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* TABS (To switch modes) */
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #777;
+            width: 50%;
+        }
+
+        .tab-btn.active {
+            color: #ffa500;
+            border-bottom: 3px solid #ffa500;
+        }
+
+        /* FORM ELEMENTS */
+        .input-group {
+            display: none; /* Hidden by default */
+        }
+
+        .input-group.active {
+            display: block; /* Show active group */
         }
 
         label {
@@ -32,18 +67,20 @@
             display: block;
             margin-top: 10px;
             color: #555;
+            font-size: 14px;
         }
 
         input {
-            width: 93%;
-            /* Adjusted to prevent overflow padding */
-            padding: 10px;
+            width: 100%;
+            padding: 12px;
             margin: 5px 0;
             border-radius: 5px;
             border: 1px solid #ccc;
+            box-sizing: border-box; /* Fixes padding issues */
+            font-size: 16px;
         }
 
-        button {
+        button.calc-btn {
             width: 100%;
             padding: 12px;
             background: #ffa500;
@@ -52,84 +89,151 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 16px;
-            margin-top: 15px;
+            margin-top: 20px;
             color: white;
             transition: background 0.3s;
         }
 
-        button:hover {
+        button.calc-btn:hover {
             background: #e69500;
         }
 
         #result {
             margin-top: 20px;
-            font-size: 1.2em;
-            font-weight: bold;
-            text-align: center;
-            color: #333;
-            padding: 10px;
+            padding: 15px;
             background: #f9f9f9;
-            border-radius: 5px;
+            border-left: 5px solid #ffa500;
+            border-radius: 4px;
             display: none;
-            /* Hidden until calculation */
+            text-align: center;
+        }
+        
+        .result-main {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
         }
 
-        /* 🌐 RESPONSIVE */
-        @media (max-width: 480px) {
-            .container {
-                width: 90%;
-                padding: 15px;
-            }
+        .result-sub {
+            font-size: 14px;
+            color: #666;
         }
+
     </style>
 </head>
 
 <body>
 
     <div class="container">
-        <h2>Petrol Expense Calculator</h2>
+        <h2>⛽ Petrol Calculator</h2>
 
-        <label for="distance">Total Distance (km)</label>
-        <input type="number" id="distance" placeholder="e.g. 50">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('cost')">Find Cost</button>
+            <button class="tab-btn" onclick="switchTab('range')">Find Range</button>
+        </div>
 
-        <label for="mileage">Vehicle Mileage (km/L)</label>
-        <input type="number" id="mileage" placeholder="e.g. 45">
+        <div id="cost-form" class="input-group active">
+            <label>Trip Distance (km)</label>
+            <input type="number" id="distance" placeholder="e.g. 50">
+            
+            <label>Vehicle Mileage (km/L)</label>
+            <input type="number" id="mileage1" placeholder="e.g. 45">
 
-        <label for="fuelPrice">Fuel Price (₹/L)</label>
-        <input type="number" id="fuelPrice" placeholder="e.g. 102">
+            <label>Fuel Price (₹/L)</label>
+            <input type="number" id="price1" placeholder="e.g. 102">
 
-        <button onclick="calculateExpense()">Calculate Cost</button>
+            <button class="calc-btn" onclick="calculateCost()">Calculate Expense</button>
+        </div>
+
+        <div id="range-form" class="input-group">
+            <label>Amount Filled (₹)</label>
+            <input type="number" id="amountFilled" placeholder="e.g. 500">
+            
+            <label>Fuel Price (₹/L)</label>
+            <input type="number" id="price2" placeholder="e.g. 102">
+
+            <label>Vehicle Mileage (km/L)</label>
+            <input type="number" id="mileage2" placeholder="e.g. 45">
+
+            <button class="calc-btn" onclick="calculateRange()">Check Distance</button>
+        </div>
 
         <div id="result"></div>
     </div>
 
     <script>
-        function calculateExpense() {
-            // 1. Get values from inputs
-            const distance = parseFloat(document.getElementById("distance").value);
-            const mileage = parseFloat(document.getElementById("mileage").value);
-            const fuelPrice = parseFloat(document.getElementById("fuelPrice").value);
+        // Tab Switcher Logic
+        function switchTab(mode) {
+            // Hide result when switching
+            document.getElementById("result").style.display = "none";
 
-            // 2. Validation: Check if inputs are valid numbers
-            if (isNaN(distance) || isNaN(mileage) || isNaN(fuelPrice) || mileage === 0) {
-                alert("Please enter valid numbers for all fields. Mileage cannot be zero.");
+            // Toggle Input Forms
+            if (mode === 'cost') {
+                document.getElementById('cost-form').classList.add('active');
+                document.getElementById('range-form').classList.remove('active');
+                
+                // Update Tab Styles
+                document.getElementsByClassName('tab-btn')[0].classList.add('active');
+                document.getElementsByClassName('tab-btn')[1].classList.remove('active');
+            } else {
+                document.getElementById('cost-form').classList.remove('active');
+                document.getElementById('range-form').classList.add('active');
+
+                // Update Tab Styles
+                document.getElementsByClassName('tab-btn')[0].classList.remove('active');
+                document.getElementsByClassName('tab-btn')[1].classList.add('active');
+            }
+        }
+
+        // Logic 1: Calculate Cost
+        function calculateCost() {
+            const dist = parseFloat(document.getElementById("distance").value);
+            const mileage = parseFloat(document.getElementById("mileage1").value);
+            const price = parseFloat(document.getElementById("price1").value);
+
+            if (!dist || !mileage || !price) {
+                alert("Please fill all fields");
                 return;
             }
 
-            // 3. Formula: (Distance / Mileage) * Fuel Price
-            const fuelNeeded = distance / mileage;
-            const totalCost = fuelNeeded * fuelPrice;
+            const totalCost = (dist / mileage) * price;
+            const liters = dist / mileage;
 
-            // 4. Display Result
-            const resultDiv = document.getElementById("result");
-            resultDiv.style.display = "block";
-            resultDiv.innerHTML = `
-                Fuel Needed: ${fuelNeeded.toFixed(2)} Liters<br>
-                <span style="color: #d9534f; font-size: 1.4em;">Total Cost: ₹${totalCost.toFixed(2)}</span>
+            showResult(`₹${totalCost.toFixed(0)}`, `Fuel needed: ${liters.toFixed(2)} Liters`);
+        }
+
+        // Logic 2: Calculate Range (New Feature)
+        function calculateRange() {
+            const amount = parseFloat(document.getElementById("amountFilled").value);
+            const price = parseFloat(document.getElementById("price2").value);
+            const mileage = parseFloat(document.getElementById("mileage2").value);
+
+            if (!amount || !price || !mileage) {
+                alert("Please fill all fields");
+                return;
+            }
+
+            // Step 1: Find how many liters you got
+            const liters = amount / price;
+            
+            // Step 2: Find how far you can go
+            const distance = liters * mileage;
+
+            showResult(`${distance.toFixed(1)} km`, `Fuel obtained: ${liters.toFixed(2)} Liters`);
+        }
+
+        // Helper to display result
+        function showResult(mainText, subText) {
+            const resDiv = document.getElementById("result");
+            resDiv.style.display = "block";
+            resDiv.innerHTML = `
+                <span class="result-main">${mainText}</span>
+                <span class="result-sub">${subText}</span>
             `;
         }
     </script>
 
 </body>
-
 </html>
