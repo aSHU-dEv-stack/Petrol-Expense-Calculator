@@ -2,7 +2,7 @@
 
 A simple and responsive web application to calculate petrol fuel cost based on travel distance, vehicle mileage, and current petrol price.
 
-🔗 **Live Demo**: Add your deployed link here  
+🔗 **Live Demo**: https://ashu-dev-stack.github.io/Petrol-Expense-Calculator/  
 🔗 **GitHub Repository**: https://github.com/aSHU-dEv-stack/Petrol-Expense-Calculator
 
 ---
